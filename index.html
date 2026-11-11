@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1F3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Painel de Serviços</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-192.png">
+<link rel="stylesheet" href="app.css?v=4">
+<script>try{var t=localStorage.getItem('ps-tema2');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></symbol>
+  <symbol id="i-topic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M18 15v6M15 18h6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/></symbol>
+  <symbol id="i-money" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+</svg>
+
+<div id="login" class="login" hidden>
+  <div class="login-box">
+    <img class="logo logo-lg" src="logo.svg" alt="">
+    <h1>Painel de Serviços</h1>
+    <p id="login-msg">Entre com sua conta Google para ver e editar os serviços.</p>
+    <button id="btn-entrar" class="btn btn-primary" type="button">Entrar com Google</button>
+    <small>Use a conta liberada para a planilha.</small>
+  </div>
+</div>
+
+<header class="band">
+  <div class="band-in">
+    <div class="topline">
+      <div class="brand"><img class="logo" src="logo.svg" alt=""><div><strong>Painel de Serviços</strong><span>Engenharia ambiental</span></div></div>
+      <nav class="tabs" aria-label="Seções">
+        <button class="tab on" data-view="servicos"><svg class="ico"><use href="#i-list"/></svg><span>Serviços</span></button>
+        <button class="tab" data-view="financeiro"><svg class="ico"><use href="#i-money"/></svg><span>Financeiro</span></button>
+        <button class="tab tab-sync" id="btn-sync" title="Atualizar"><svg class="ico"><use href="#i-sync"/></svg><span>Atualizar</span></button>
+      </nav>
+      <div class="top-right">
+        <span class="sync-state" id="sync-state"></span>
+        <button class="icon-btn on-band" id="btn-tema" title="Tema claro/escuro" aria-label="Alternar tema"><svg class="ico"><use href="#i-moon"/></svg></button>
+        <button class="chip-conta" id="conta" hidden></button>
+      </div>
+    </div>
+    <div class="headline">
+      <div>
+        <p class="eyebrow" id="hoje"></p>
+        <h1 id="titulo-view">Serviços em andamento</h1>
+      </div>
+      <button class="btn btn-light" id="btn-novo" type="button"><svg class="ico"><use href="#i-plus"/></svg>Novo serviço</button>
+    </div>
+    <dl class="stats" id="stats"></dl>
+  </div>
+</header>
+
+<main class="main">
+  <section class="view" id="view-servicos">
+    <div class="toolbar">
+      <div class="seg" id="filtros" role="tablist"></div>
+      <label class="search"><svg class="ico"><use href="#i-search"/></svg><input id="busca" placeholder="Buscar serviço ou cliente" type="search" aria-label="Buscar serviço ou cliente"></label>
+    </div>
+    <div class="sheet" id="lista"></div>
+  </section>
+
+  <section class="view" id="view-financeiro" hidden>
+    <div class="kpis" id="kpis"></div>
+    <div class="sheet pad">
+      <h2 class="sheet-title">Concluídos e comissões</h2>
+      <div class="tabela" id="fin-tabela"></div>
+    </div>
+  </section>
+</main>
+
+<!-- Janela: novo / editar serviço -->
+<dialog id="dlg-serv" class="dlg dlg-lg">
+  <div class="dlg-head">
+    <div><p class="eyebrow dark" id="s-eyebrow">Novo serviço</p><h2 id="s-titulo">Novo serviço</h2></div>
+    <button class="icon-btn" data-fechar title="Fechar" aria-label="Fechar"><svg class="ico"><use href="#i-x"/></svg></button>
+  </div>
+  <form id="s-rapido" class="rapido" autocomplete="off">
+    <label for="s-rapido-in">Descreva em uma linha</label>
+    <div class="rapido-row">
+      <input id="s-rapido-in" placeholder="Retificação CAR - Estêvão - R$ 1.500 até 20/12">
+      <button class="btn btn-primary">Criar</button>
+    </div>
+    <p class="hint">Serviço, cliente e valor em qualquer ordem. Valor: 1500 · 1.500 reais · R$ 1.500,00 · 3 mil. Prazo: até 20/12.</p>
+    <p class="divisor"><span>ou preencha os campos</span></p>
+  </form>
+  <form id="s-form" class="form">
+    <div class="row2">
+      <label>Serviço<input name="servico" required></label>
+      <label>Cliente<input name="cliente" required></label>
+    </div>
+    <div class="row3">
+      <label>Situação<select name="situacao"></select></label>
+      <label>Entrada<input name="entrada" type="date"></label>
+      <label>Prazo<input name="prazo" type="date"></label>
+    </div>
+    <div class="row3">
+      <label>Valor (R$)<input name="valor" inputmode="decimal" placeholder="1.500,00"></label>
+      <label>Pagamento<select name="pagamento"><option>A definir</option><option>Pago</option><option>Sem pagamento</option></select></label>
+      <label>Comissão repassada em<input name="repasse" type="date"></label>
+    </div>
+    <p class="comissao" id="s-comissao"></p>
+    <label>Observações<textarea name="obs" rows="3"></textarea></label>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-danger-text" id="s-excluir"><svg class="ico"><use href="#i-trash"/></svg>Excluir serviço</button>
+      <span class="grow"></span>
+      <button type="button" class="btn btn-secondary" data-fechar>Cancelar</button>
+      <button type="submit" class="btn btn-primary">Salvar serviço</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Janela: subtópico / item -->
+<dialog id="dlg-tar" class="dlg">
+  <div class="dlg-head">
+    <div><p class="eyebrow dark" id="t-eyebrow">Serviço</p><h2 id="t-titulo">Novo subtópico</h2></div>
+    <button class="icon-btn" data-fechar title="Fechar" aria-label="Fechar"><svg class="ico"><use href="#i-x"/></svg></button>
+  </div>
+  <form id="t-form" class="form">
+    <label id="t-desc-lbl">Título<input name="desc" required placeholder="Ex.: Informação complementar"></label>
+    <div class="row2">
+      <label>Prazo<input name="prazo" type="date"></label>
+      <label>Situação<select name="situacao"></select></label>
+    </div>
+    <label>Observações<textarea name="obs" rows="2"></textarea></label>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-danger-text" id="t-excluir"><svg class="ico"><use href="#i-trash"/></svg>Excluir</button>
+      <span class="grow"></span>
+      <button type="button" class="btn btn-secondary" data-fechar>Cancelar</button>
+      <button type="submit" class="btn btn-primary" id="t-salvar">Adicionar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Janela: concluído sem valor -->
+<dialog id="dlg-valor" class="dlg">
+  <form method="dialog">
+    <div class="dlg-head"><div><p class="eyebrow dark">Conclusão</p><h2>Serviço concluído sem valor</h2></div></div>
+    <p id="dlg-nome" class="dlg-nome"></p>
+    <p class="muted">Houve pagamento? Informe o valor para calcular a comissão.</p>
+    <label class="campo">Valor (R$)<input id="dlg-valor-in" inputmode="decimal" placeholder="1.500,00"></label>
+    <div class="dlg-actions">
+      <button value="depois" class="btn btn-text">Decidir depois</button>
+      <span class="grow"></span>
+      <button value="sem" class="btn btn-secondary">Não houve pagamento</button>
+      <button value="valor" class="btn btn-primary">Confirmar valor</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="config.js?v=3"></script>
+<script src="app.js?v=4"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>
